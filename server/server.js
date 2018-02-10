@@ -4,6 +4,8 @@ const socketIO = require('socket.io');
 const path = require('path');
 const http = require('http');
 
+const {generateMessage} = require('../server/utils/message');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -26,26 +28,15 @@ const io= socketIO(server);
 io.on('connection',(socket) =>{
     console.log("a user was connected.");
 
-    socket.emit('newMessage',{
-       from:"Admin",
-       text:"Welcome to our chat app :)",
-       createdAt:new Date().getTime()
-    });
+    socket.emit('newMessage',generateMessage("Admin","Welcome to the chat app."));
 
     //sends a message to all the users expect the one of the socket.
-    socket.broadcast.emit('newMessage',{
-       from:"Admin",
-       text:"A new user has joined the chat application."
-    });
+    socket.broadcast.emit('newMessage',generateMessage("Admin","A new user has joined the chat app."));
 
     socket.on('createMessage',(message) =>{
         console.log('Message',message);
         //when emitting an event from io (the web socket server) we emit the event to every open socket to this web socket server.(all the clients.)
-        io.emit('newMessage',{
-            from:message.from,
-            text:message.text,
-            createdAt:new Date().getTime()
-        });
+        io.emit('newMessage',generateMessage(message.from,message.text));
     });
 
 
