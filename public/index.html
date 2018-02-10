@@ -19,12 +19,12 @@
         console.log("connected to the server.");
 
         socket.emit('createMessage',{
-            from: "nesi the client",
-            text:"its all good LEVANA"
+            from: "Nesi",
+            text:"Hello LEVANAA"
         })
     });
-    socket.on('newMessage',function (email) {
-        console.log("email",email);
+    socket.on('newMessage',function (message) {
+        console.log("message",message);
     });
 
     socket.on('disconnect',function (){

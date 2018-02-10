@@ -27,15 +27,18 @@ io.on('connection',(socket) =>{
     console.log("a user was connected.");
 
 
-    socket.on('createMessage',(email) =>{
-        console.log('Message',email);
+    socket.on('createMessage',(message) =>{
+        console.log('Message',message);
+
+        //when emitting an event from io (the web socket server) we emit the event to every open socket to this web socket server.(all the clients.)
+        io.emit('newMessage',{
+            from:message.from,
+            text:message.text,
+            createdAt:new Date().getTime()
+        });
     });
 
-    socket.emit('newMessage',{
-        from:'John',
-        text:'See you then',
-        createdAt:new Date().getTime()
-    });
+
 
     socket.on('disconnect',() => {
         console.log("user was disconnected.");
