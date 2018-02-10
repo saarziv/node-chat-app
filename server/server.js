@@ -28,18 +28,27 @@ const io= socketIO(server);
 io.on('connection',(socket) =>{
     console.log("a user was connected.");
 
+    //passing to the client only.(the one that opened a connection/socket(connection = socket))
     socket.emit('newMessage',generateMessage("Admin","Welcome to the chat app."));
 
-    //sends a message to all the users expect the one of the socket.
+    //sends a message to all the users expect the one of the connection/socket.
     socket.broadcast.emit('newMessage',generateMessage("Admin","A new user has joined the chat app."));
 
+    //event listener on createMessage.
+    //firing an ack cb after the listener finished exec
     socket.on('createMessage',(message,cb) =>{
-        console.log('Message',message);
+
         //when emitting an event from io (the web socket server) we emit the event to every open socket to this web socket server.(all the clients.)
         io.emit('newMessage',generateMessage(message.from,message.text));
-        cb(`this is from the server. the message ${message.text} is ok.`);
+        cb(`From Server : ${message.text} is ok.`);
 
     });
+
+    socket.on('sendLocation',(location,cb) =>{
+        io.emit('newMessage',generateMessage("Admin",`lng: ${location.longitude}, lat:${location.latitude}`));
+        cb(`From Server :the location has been sent.`)
+    });
+
     socket.on('disconnect',() => {
         console.log("user was disconnected.");
     });
