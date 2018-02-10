@@ -26,10 +26,20 @@ const io= socketIO(server);
 io.on('connection',(socket) =>{
     console.log("a user was connected.");
 
+    socket.emit('newMessage',{
+       from:"Admin",
+       text:"Welcome to our chat app :)",
+       createdAt:new Date().getTime()
+    });
+
+    //sends a message to all the users expect the one of the socket.
+    socket.broadcast.emit('newMessage',{
+       from:"Admin",
+       text:"A new user has joined the chat application."
+    });
 
     socket.on('createMessage',(message) =>{
         console.log('Message',message);
-
         //when emitting an event from io (the web socket server) we emit the event to every open socket to this web socket server.(all the clients.)
         io.emit('newMessage',{
             from:message.from,
