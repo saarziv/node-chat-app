@@ -14,10 +14,20 @@
     //if suddenly the server shuts down the client will still try to keep this socket online and will keep sending req to the server.
     //(visible in network tab of dev tools.)
     //these to event listeners will fire when we connect / disconnect from the server.
-    socket.on('connect',() =>{
+    //notice that im not using arrow functions on the client, because only chrome supports es6 (it will only work on chrome..)
+    socket.on('connect',function () {
         console.log("connected to the server.");
+
+        socket.emit('createMessage',{
+            from: "nesi the client",
+            text:"its all good LEVANA"
+        })
     });
-    socket.on('disconnect',() => {
+    socket.on('newMessage',function (email) {
+        console.log("email",email);
+    });
+
+    socket.on('disconnect',function (){
         console.log("disconnected from the server.");
     });
 

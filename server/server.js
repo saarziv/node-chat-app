@@ -26,9 +26,20 @@ const io= socketIO(server);
 io.on('connection',(socket) =>{
     console.log("a user was connected.");
 
+
+    socket.on('createMessage',(email) =>{
+        console.log('Message',email);
+    });
+
+    socket.emit('newMessage',{
+        from:'John',
+        text:'See you then',
+        createdAt:new Date().getTime()
+    });
+
     socket.on('disconnect',() => {
         console.log("user was disconnected.");
-    })
+    });
 });
 
 
