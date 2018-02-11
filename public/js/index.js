@@ -13,20 +13,45 @@ socket.on('connect',function () {
 
 //registers and event listener on newMessage
 socket.on('newMessage',function (message) {
-    let li = jQuery("<li></li>");
-    li.text(`${message.from} ${moment(message.createdAt).format('h:mm a')}: ${message.text}`);
-    jQuery('#messages-list').append(li);
+
+    //formatting the createdAt timestamp.
+    let formattedCreatedAt = moment(message.createdAt).format('h:mm a');
+
+    //getting reference to the html of the template.
+    let MessageTemplate = jQuery('#message-template').html();
+
+    //passing the template we wish to render with object data , and the object
+    let renderedMessage = Mustache.render(MessageTemplate,{
+        from: message.from,
+        text: message.text,
+        createdAt: formattedCreatedAt
+    });
+
+    //adding the rendered template to the #messages-list element.
+    jQuery('#messages-list').append(renderedMessage);
 });
 
 socket.on('newLocationMessage',function (message) {
-    //target blank makes the pressing on the link open a new tab.
-    let a = jQuery("<a target='_blank'>My current location.</a>");
-    a.attr('href',message.url);
-    let li = jQuery("<li></li>");
-    li.text(`${message.from} ${moment(message.createdAt).format('h:mm a')}:`);
-    li.append(a);
 
-    jQuery('#messages-list').append(li);
+    let formattedCreatedAt = moment(message.createdAt).format('h:mm a');
+
+    let locationTemplate = jQuery('#locationMessage-template').html();
+    let renderedLocationTemplate = Mustache.render(locationTemplate,{
+        from:message.from,
+        url:message.url,
+        createdAt:formattedCreatedAt
+    });
+    jQuery('#messages-list').append(renderedLocationTemplate);
+    //using jQuery without  mustache.js..
+
+    //target blank makes the pressing on the link open a new tab.
+    // let a = jQuery("<a target='_blank'>My current location.</a>");
+    // a.attr('href',message.url);
+    // let li = jQuery("<li></li>");
+    // li.text(`${message.from} ${moment(message.createdAt).format('h:mm a')}:`);
+    // li.append(a);
+    //
+    // jQuery('#messages-list').append(li);
 });
 
 socket.on('disconnect',function (){
