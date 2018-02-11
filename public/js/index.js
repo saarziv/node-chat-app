@@ -33,19 +33,21 @@ socket.on('disconnect',function (){
     console.log("disconnected from the server.");
 });
 
+let messageTextBox = jQuery('#message');
+
 jQuery('#message-form').on('submit',function (e) {
 
     //default of jquery when the event of submit triggers, adds to the url a query parameter , this way we prevent it.
     e.preventDefault();
     let messageObj = {
         from: "User",
-        text:jQuery('#message').val()
+        text:messageTextBox.val()
     };
 
     //emits an event createMessage passing the input data from the user.
-    //getting an ack callback saying that the data has been passed successfully and logging it to the console.
-    socket.emit('createMessage',messageObj,function (data) {
-        console.log(data + " - yay client got the ack.")
+    //getting an ack callback from server after the message arrived to it, and when the cb is fired ,we delete the text on the text box.
+    socket.emit('createMessage',messageObj,function () {
+        messageTextBox.val('')
     });
 });
 
@@ -54,17 +56,23 @@ locationBtn.on('click',function (e) {
 
     //checks if the geolocation api works..(its supported by most browsers. no need to import some library)
     if(!navigator.geolocation){
-        alert('geolocation does not work.')
+        alert('geolocation does not work.');
+        //disabling the send location btn , and changing his text.
+        locationBtn.attr('disabled',true);
+        locationBtn.text('Unable to send location..');
     } else {
-        navigator.geolocation.getCurrentPosition(function (position) {
+            locationBtn.attr('disabled',true);
+            locationBtn.text('Sending location...');
+            navigator.geolocation.getCurrentPosition(function (position) {
 
             //emits an event called sendLocation ,with object that contains lat,lng
-            //getting a cb here as well.
+            //getting a cb from server, and enabling the btn in the callback.
             socket.emit('sendLocation',{
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude
-            },function (data) {
-                console.log(data + " - client got the ack.")
+            },function () {
+                locationBtn.attr('disabled',false);
+                locationBtn.text('Send location');
             });
 
         });
