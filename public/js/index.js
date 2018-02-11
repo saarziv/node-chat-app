@@ -1,4 +1,28 @@
 
+let scrollMessages = function () {
+
+    //there is a css property on the class chat__messages overflow-y: scroll that makes the message scrollable in the first place.
+    let messages= jQuery('#messages-list');
+    let newMessage = messages.children('li:last-child');
+    let prevNewMessage = newMessage.siblings('li');
+
+    //we access the properties of the scrollable DOM object - in this case <ol>.
+    let scrollHeight = messages.prop('scrollHeight'); //all the scrollable height possible in the window.
+    let scrollTop = messages.prop('scrollTop'); //from top to current scroll location.(the height we covered when scrolling )
+    let clientHeight = messages.prop('clientHeight'); // the height that is visible in the screen at this current moment.
+    let newMessageHeight = newMessage.innerHeight(); // the height of the last message.
+    let prevNewMessageHeight = prevNewMessage.innerHeight(); // the height of one previous from the  last message.
+
+    //we are scrolled all the way down when scrollTop + clientHeight = scrollHeight
+    //we want the screen to automatically scroll when we are all the way down / or two messages away from being all the way down.
+    if(scrollTop + clientHeight + newMessageHeight + prevNewMessageHeight>= scrollHeight){
+
+        //making the scrollTop eq to the scroll height what makes the automatic scroll down.
+        messages.prop(`scrollTop`,scrollHeight);
+    }
+
+};
+
 // this function creates the socket to the server
 // this socket will be the way the client and the server will communicate.
 let socket = io();
@@ -29,6 +53,7 @@ socket.on('newMessage',function (message) {
 
     //adding the rendered template to the #messages-list element.
     jQuery('#messages-list').append(renderedMessage);
+    scrollMessages();
 });
 
 socket.on('newLocationMessage',function (message) {
@@ -42,6 +67,8 @@ socket.on('newLocationMessage',function (message) {
         createdAt:formattedCreatedAt
     });
     jQuery('#messages-list').append(renderedLocationTemplate);
+
+    scrollMessages();
     //using jQuery without  mustache.js..
 
     //target blank makes the pressing on the link open a new tab.
