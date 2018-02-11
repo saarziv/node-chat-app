@@ -1,4 +1,3 @@
-
 let scrollMessages = function () {
 
     //there is a css property on the class chat__messages overflow-y: scroll that makes the message scrollable in the first place.
@@ -20,7 +19,6 @@ let scrollMessages = function () {
         //making the scrollTop eq to the scroll height what makes the automatic scroll down.
         messages.prop(`scrollTop`,scrollHeight);
     }
-
 };
 
 // this function creates the socket to the server
@@ -32,7 +30,18 @@ let socket = io();
 //these to event listeners will fire when we connect / disconnect from the server.
 //notice that im not using arrow functions on the client, because only chrome supports es6 (it will only work on chrome..)
 socket.on('connect',function () {
-    console.log("connected to the server.");
+
+    //using andrews 3rd library function jquery.deparam that takes a window.location.search which represents a query string info
+    //and returns it decoded normally.
+    let params = jQuery.deparam(window.location.search);
+    socket.emit('join',params,function (err) {
+        if(err){
+            alert(err);
+            window.location.href="/";
+        } else {
+            console.log("No Error");
+        }
+    })
 });
 
 //registers and event listener on newMessage

@@ -5,6 +5,7 @@ const path = require('path');
 const http = require('http');
 
 const {generateMessage,generateLocationMessage} = require('../server/utils/message');
+const {isRealString} = require('../server/utils/validation');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -26,13 +27,30 @@ const io= socketIO(server);
 //(there will be different socket for every client)
 //notice that this socket is the same as the socket on the client (the client and the server communicate via this socket.)
 io.on('connection',(socket) =>{
-    console.log("a user was connected.");
+    //summary :
 
-    //passing to the client only.(the one that opened a connection/socket(connection = socket))
-    socket.emit('newMessage',generateMessage("Admin","Welcome to the chat app."));
+    //io.emit - emits to all connections that connected to the server.
+    //socket.emit - emits to only to the user that opened a connection.
+    //socket.broadcast.emit - sends a message to all the users expect the user that opened a connection.
+    //socket.join(roomName) - makes the socket join the room.
+    //socket.leave(roomName) - makes the socket leave the room.
+    //io.to('groupName').emit - to all connections on that room
+    //socket.broadcast.to('groupName').emit - to all connections on that room except the user that opened a connection.
 
-    //sends a message to all the users expect the one of the connection/socket.
-    socket.broadcast.emit('newMessage',generateMessage("Admin","A new user has joined the chat app."));
+    socket.on('join',(params, callback) => {
+        if(!isRealString(params.name) || !isRealString(params.room)){
+            callback("Name and room are required.");
+        } else {
+            //makes the socket join the room.
+            socket.join(params.room);
+            //passing to the client only.(the one that opened a connection/socket(connection = socket))
+            socket.emit('newMessage',generateMessage("Admin","Welcome to the chat app."));
+            //sends a message to all the users expect the one of the connection/socket in the room named -params.room
+            socket.broadcast.to(params.room).emit('newMessage',generateMessage("Admin",`${params.name} Has joined the room.`));
+
+            callback();
+        }
+    });
 
     //event listener on createMessage.
     //firing an ack cb after the listener finished exec

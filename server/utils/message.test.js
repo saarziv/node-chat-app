@@ -23,6 +23,6 @@ describe("Generate location message",() =>{
 
        chai.expect(typeof obj.createdAt).to.equal('number');
        chai.expect(obj.from).to.be.equal(from);
-       chai.expect(obj.url).to.be.equal(`https://www.google.com/maps?q=1, 2`);
+       chai.expect(obj.url).to.be.equal(`https://www.google.com/maps?q=1,2`);
    });
 });
