@@ -18,6 +18,17 @@ socket.on('newMessage',function (message) {
     jQuery('#messages-list').append(li);
 });
 
+socket.on('newLocationMessage',function (message) {
+    //target blank makes the pressing on the link open a new tab.
+    let a = jQuery("<a target='_blank'>My current location.</a>");
+    a.attr('href',message.url);
+    let li = jQuery("<li></li>");
+    li.text(message.from + " :");
+    li.append(a);
+
+    jQuery('#messages-list').append(li);
+});
+
 socket.on('disconnect',function (){
     console.log("disconnected from the server.");
 });

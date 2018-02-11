@@ -1,7 +1,7 @@
 const chai = require('chai');
-const {generateMessage} = require('./message');
+const {generateMessage,generateLocationMessage} = require('./message');
 
-describe("Test generate message",() =>{
+describe("Generate message",() =>{
    it("Should test that the parameter supplied return correct object.",() =>{
        let from= "Admin";
        let text = "hello world.";
@@ -11,4 +11,18 @@ describe("Test generate message",() =>{
        chai.expect(typeof obj.createdAt).to.equal('number');
 
    })
+});
+
+describe("Generate location message",() =>{
+   it("Should return valid location object",() =>{
+
+       let from = "Admin";
+       let latitude = 1;
+       let longitude = 2;
+       let obj = generateLocationMessage(from,latitude,longitude);
+
+       chai.expect(typeof obj.createdAt).to.equal('number');
+       chai.expect(obj.from).to.be.equal(from);
+       chai.expect(obj.url).to.be.equal(`https://www.google.com/maps?q=1, 2`);
+   });
 });

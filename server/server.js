@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const http = require('http');
 
-const {generateMessage} = require('../server/utils/message');
+const {generateMessage,generateLocationMessage} = require('../server/utils/message');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,7 +45,7 @@ io.on('connection',(socket) =>{
     });
 
     socket.on('sendLocation',(location,cb) =>{
-        io.emit('newMessage',generateMessage("Admin",`lng: ${location.longitude}, lat:${location.latitude}`));
+        io.emit('newLocationMessage',generateLocationMessage("Admin",location.latitude, location.longitude));
         cb(`From Server :the location has been sent.`)
     });
 
