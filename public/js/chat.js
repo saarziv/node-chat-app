@@ -21,6 +21,8 @@ let scrollMessages = function () {
     }
 };
 
+//gets the information about the user that is stored in the query string on the url.
+let params = jQuery.deparam(window.location.search);
 // this function creates the socket to the server
 // this socket will be the way the client and the server will communicate.
 let socket = io();
@@ -33,7 +35,7 @@ socket.on('connect',function () {
 
     //using andrews 3rd library function jquery.deparam that takes a window.location.search which represents a query string info
     //and returns it decoded normally.
-    let params = jQuery.deparam(window.location.search);
+
     socket.emit('join',params,function (err) {
         if(err){
             alert(err);
@@ -43,6 +45,21 @@ socket.on('connect',function () {
         }
     })
 });
+
+socket.on('getAllUsersInRoom',function (users){
+    let usersInRoomDiv = jQuery('#users');
+
+    let ol = jQuery("<ol></ol>");
+    users.forEach(function (user) {
+       let li = jQuery("<li></li>");
+       li.text(user);
+       ol.append(li);
+    });
+    //setting the html inside of #users div (because we dont want it to be added, we want to delete the old ol and save the new
+    // one every time this event fires )
+    usersInRoomDiv.html(ol);
+});
+
 
 //registers and event listener on newMessage
 socket.on('newMessage',function (message) {
@@ -100,14 +117,10 @@ jQuery('#message-form').on('submit',function (e) {
 
     //default of jquery when the event of submit triggers, adds to the url a query parameter , this way we prevent it.
     e.preventDefault();
-    let messageObj = {
-        from: "User",
-        text:messageTextBox.val()
-    };
 
     //emits an event createMessage passing the input data from the user.
     //getting an ack callback from server after the message arrived to it, and when the cb is fired ,we delete the text on the text box.
-    socket.emit('createMessage',messageObj,function () {
+    socket.emit('createMessage',{text:messageTextBox.val()},function () {
         messageTextBox.val('')
     });
 });
@@ -124,10 +137,11 @@ locationBtn.on('click',function (e) {
     } else {
             locationBtn.attr('disabled',true);
             locationBtn.text('Sending location...');
-            navigator.geolocation.getCurrentPosition(function (position) {
 
+            navigator.geolocation.getCurrentPosition(function (position) {
             //emits an event called sendLocation ,with object that contains lat,lng
             //getting a cb from server, and enabling the btn in the callback.
+
             socket.emit('sendLocation',{
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude
@@ -135,7 +149,15 @@ locationBtn.on('click',function (e) {
                 locationBtn.attr('disabled',false);
                 locationBtn.text('Send location');
             });
+        //geolocation mock (sometimes the geolocation does not work)
 
+        // socket.emit('sendLocation',{
+        //     from: params.name,
+        //     latitude: 10,
+        //     longitude: 11
+        // },function () {
+        //     locationBtn.attr('disabled',false);
+        //     locationBtn.text('Send location');
         });
     }
 });
